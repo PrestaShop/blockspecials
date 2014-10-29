@@ -32,18 +32,18 @@ class BlockSpecials extends Module
 	private $_html = '';
 	private $_postErrors = array();
 
-    private static $cache_specials;
+	private static $cache_specials;
 
-    function __construct()
-    {
-        $this->name = 'blockspecials';
-        $this->tab = 'pricing_promotion';
-        $this->version = '1.1.1';
+	public function __construct()
+	{
+		$this->name = 'blockspecials';
+		$this->tab = 'pricing_promotion';
+		$this->version = '1.1.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
 		$this->bootstrap = true;
-		parent::__construct();	
+		parent::__construct();
 
 		$this->displayName = $this->l('Specials block');
 		$this->description = $this->l('Adds a block displaying your current discounted products.');
@@ -57,18 +57,16 @@ class BlockSpecials extends Module
 
 		if (!Configuration::get('BLOCKSPECIALS_SPECIALS_NBR'))
 			Configuration::updateValue('BLOCKSPECIALS_SPECIALS_NBR', 5);
-		
+
 		$this->_clearCache('*');
 
-		$success = (
-			parent::install()
+		$success = parent::install()
 			&& $this->registerHook('header')
 			&& $this->registerHook('addproduct')
 			&& $this->registerHook('updateproduct')
 			&& $this->registerHook('deleteproduct')
-            && $this->registerHook('displayHomeTab')
-            && $this->registerHook('displayHomeTabContent')
-		);
+			&& $this->registerHook('displayHomeTab')
+			&& $this->registerHook('displayHomeTabContent');
 
 		if ($success)
 		{
@@ -85,7 +83,7 @@ class BlockSpecials extends Module
 		}
 		return $success;
 	}
-	
+
 	public function uninstall()
 	{
 		$this->_clearCache('*');
@@ -109,7 +107,7 @@ class BlockSpecials extends Module
 	{
 		if (Configuration::get('PS_CATALOG_MODE'))
 			return;
-		
+
 		// We need to create multiple caches because the products are sorted randomly
 		$random = date('Ymd').'|'.round(rand(1, max(Configuration::get('BLOCKSPECIALS_NB_CACHES'), 1)));
 
@@ -136,7 +134,7 @@ class BlockSpecials extends Module
 	public function hookHeader($params)
 	{
 		if (Configuration::get('PS_CATALOG_MODE'))
-			return ;
+			return;
 		$this->context->controller->addCSS(($this->_path).'blockspecials.css', 'all');
 	}
 
@@ -155,39 +153,39 @@ class BlockSpecials extends Module
 		$this->_clearCache('*');
 	}
 
-    public function hookDisplayHomeTab($params)
-    {
-        if (Configuration::get('PS_CATALOG_MODE'))
-            return;
+	public function hookDisplayHomeTab($params)
+	{
+		if (Configuration::get('PS_CATALOG_MODE'))
+			return;
 
-        if (!$this->isCached('tab.tpl', $this->getCacheId('blockspecials-tab')))
-            BlockSpecials::$cache_specials = Product::getPricesDrop((int)$params['cookie']->id_lang, 0, Configuration::get('BLOCKSPECIALS_SPECIALS_NBR'));
+		if (!$this->isCached('tab.tpl', $this->getCacheId('blockspecials-tab')))
+			BlockSpecials::$cache_specials = Product::getPricesDrop((int)$params['cookie']->id_lang, 0, Configuration::get('BLOCKSPECIALS_SPECIALS_NBR'));
 
-        if (BlockSpecials::$cache_specials === false)
-            return false;
+		if (BlockSpecials::$cache_specials === false)
+			return false;
 
-        return $this->display(__FILE__, 'tab.tpl', $this->getCacheId('blockspecials-tab'));
-    }
+		return $this->display(__FILE__, 'tab.tpl', $this->getCacheId('blockspecials-tab'));
+	}
 
-    public function hookDisplayHomeTabContent($params)
-    {
-        if (Configuration::get('PS_CATALOG_MODE'))
-            return;
+	public function hookDisplayHomeTabContent($params)
+	{
+		if (Configuration::get('PS_CATALOG_MODE'))
+			return;
 
-        if(!$this->isCached('blockspecials-home.tpl', $this->getCacheId('blockspecials-home')))
-        {
-            $this->smarty->assign(array(
-                'specials' => BlockSpecials::$cache_specials,
-                'homeSize' => Image::getSize(ImageType::getFormatedName('home'))
-            ));
-        }
+		if (!$this->isCached('blockspecials-home.tpl', $this->getCacheId('blockspecials-home')))
+		{
+			$this->smarty->assign(array(
+				'specials' => BlockSpecials::$cache_specials,
+				'homeSize' => Image::getSize(ImageType::getFormatedName('home'))
+			));
+		}
 
-        if (BlockSpecials::$cache_specials === false)
-            return false;
+		if (BlockSpecials::$cache_specials === false)
+			return false;
 
-        return $this->display(__FILE__, 'blockspecials-home.tpl', $this->getCacheId('blockspecials-home'));
-    }
-	
+		return $this->display(__FILE__, 'blockspecials-home.tpl', $this->getCacheId('blockspecials-home'));
+	}
+
 	public function renderForm()
 	{
 		$fields_form = array(
@@ -235,10 +233,10 @@ class BlockSpecials extends Module
 				)
 			),
 		);
-		
+
 		$helper = new HelperForm();
 		$helper->show_toolbar = false;
-		$helper->table =  $this->table;
+		$helper->table = $this->table;
 		$lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));
 		$helper->default_form_language = $lang->id;
 		$helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
@@ -254,7 +252,7 @@ class BlockSpecials extends Module
 
 		return $helper->generateForm(array($fields_form));
 	}
-	
+
 	public function getConfigFieldsValues()
 	{
 		return array(
@@ -264,17 +262,17 @@ class BlockSpecials extends Module
 		);
 	}
 
-    protected function getCacheId($name = null)
-    {
-        if ($name === null)
-            $name = 'blockspecials';
-        return parent::getCacheId($name.'|'.date('Ymd'));
-    }
+	protected function getCacheId($name = null)
+	{
+		if ($name === null)
+		$name = 'blockspecials';
+		return parent::getCacheId($name.'|'.date('Ymd'));
+	}
 
-    public function _clearCache($template, $cache_id = null, $compile_id = null)
-    {
-        parent::_clearCache('blockspecials.tpl');
-        parent::_clearCache('blockspecials-home.tpl', 'blockspecials-home');
-        parent::_clearCache('tab.tpl', 'blockspecials-tab');
-    }
+	public function _clearCache($template, $cache_id = null, $compile_id = null)
+	{
+		parent::_clearCache('blockspecials.tpl');
+		parent::_clearCache('blockspecials-home.tpl', 'blockspecials-home');
+		parent::_clearCache('tab.tpl', 'blockspecials-tab');
+	}
 }
