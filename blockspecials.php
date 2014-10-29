@@ -32,6 +32,8 @@ class BlockSpecials extends Module
 	private $_html = '';
 	private $_postErrors = array();
 
+    private static $cache_specials;
+
     function __construct()
     {
         $this->name = 'blockspecials';
@@ -52,7 +54,11 @@ class BlockSpecials extends Module
 	{
 		if (!Configuration::get('BLOCKSPECIALS_NB_CACHES'))
 			Configuration::updateValue('BLOCKSPECIALS_NB_CACHES', 20);
-		$this->_clearCache('blockspecials.tpl');
+
+		if (!Configuration::get('BLOCKSPECIALS_SPECIALS_NBR'))
+			Configuration::updateValue('BLOCKSPECIALS_SPECIALS_NBR', 5);
+		
+		$this->_clearCache('*');
 
 		$success = (
 			parent::install()
@@ -60,6 +66,8 @@ class BlockSpecials extends Module
 			&& $this->registerHook('addproduct')
 			&& $this->registerHook('updateproduct')
 			&& $this->registerHook('deleteproduct')
+            && $this->registerHook('displayHomeTab')
+            && $this->registerHook('displayHomeTabContent')
 		);
 
 		if ($success)
@@ -80,7 +88,7 @@ class BlockSpecials extends Module
 	
 	public function uninstall()
 	{
-		$this->_clearCache('blockspecials.tpl');
+		$this->_clearCache('*');
 		return parent::uninstall();
 	}
 
@@ -91,6 +99,7 @@ class BlockSpecials extends Module
 		{
 			Configuration::updateValue('PS_BLOCK_SPECIALS_DISPLAY', (int)Tools::getValue('PS_BLOCK_SPECIALS_DISPLAY'));
 			Configuration::updateValue('BLOCKSPECIALS_NB_CACHES', (int)Tools::getValue('BLOCKSPECIALS_NB_CACHES'));
+			Configuration::updateValue('BLOCKSPECIALS_SPECIALS_NBR', (int)Tools::getValue('BLOCKSPECIALS_SPECIALS_NBR'));
 			$output .= $this->displayConfirmation($this->l('Settings updated'));
 		}
 		return $output.$this->renderForm();
@@ -133,18 +142,51 @@ class BlockSpecials extends Module
 
 	public function hookAddProduct($params)
 	{
-		$this->_clearCache('blockspecials.tpl');
+		$this->_clearCache('*');
 	}
 
 	public function hookUpdateProduct($params)
 	{
-		$this->_clearCache('blockspecials.tpl');
+		$this->_clearCache('*');
 	}
 
 	public function hookDeleteProduct($params)
 	{
-		$this->_clearCache('blockspecials.tpl');
+		$this->_clearCache('*');
 	}
+
+    public function hookDisplayHomeTab($params)
+    {
+        if (Configuration::get('PS_CATALOG_MODE'))
+            return;
+
+        if (!$this->isCached('tab.tpl', $this->getCacheId('blockspecials-tab')))
+            BlockSpecials::$cache_specials = Product::getPricesDrop((int)$params['cookie']->id_lang, 0, Configuration::get('BLOCKSPECIALS_SPECIALS_NBR'));
+
+        if (BlockSpecials::$cache_specials === false)
+            return false;
+
+        return $this->display(__FILE__, 'tab.tpl', $this->getCacheId('blockspecials-tab'));
+    }
+
+    public function hookDisplayHomeTabContent($params)
+    {
+        if (Configuration::get('PS_CATALOG_MODE'))
+            return;
+
+        if(!$this->isCached('blockspecials-home.tpl', $this->getCacheId('blockspecials-home')))
+        {
+            $this->smarty->assign(array(
+                'specials' => BlockSpecials::$cache_specials,
+                'homeSize' => Image::getSize(ImageType::getFormatedName('home'))
+            ));
+        }
+
+        if (BlockSpecials::$cache_specials === false)
+            return false;
+
+        return $this->display(__FILE__, 'blockspecials-home.tpl', $this->getCacheId('blockspecials-home'));
+    }
 	
 	public function renderForm()
 	{
@@ -177,8 +219,16 @@ class BlockSpecials extends Module
 						'type' => 'text',
 						'label' => $this->l('Number of cached files'),
 						'name' => 'BLOCKSPECIALS_NB_CACHES',
+						'class' => 'fixed-width-xs',
 						'desc' => $this->l('Specials are displayed randomly on the front-end, but since it takes a lot of ressources, it is better to cache the results. The cache is reset daily. 0 will disable the cache.'),
 					),
+					array(
+						'type' => 'text',
+						'label' => $this->l('Products to display'),
+						'name' => 'BLOCKSPECIALS_SPECIALS_NBR',
+						'class' => 'fixed-width-xs',
+						'desc' => $this->l('Define the number of products to be displayed in this block on home page.')
+					)
 				),
 				'submit' => array(
 					'title' => $this->l('Save'),
@@ -210,6 +260,21 @@ class BlockSpecials extends Module
 		return array(
 			'PS_BLOCK_SPECIALS_DISPLAY' => Tools::getValue('PS_BLOCK_SPECIALS_DISPLAY', Configuration::get('PS_BLOCK_SPECIALS_DISPLAY')),
 			'BLOCKSPECIALS_NB_CACHES' => Tools::getValue('BLOCKSPECIALS_NB_CACHES', Configuration::get('BLOCKSPECIALS_NB_CACHES')),
+			'BLOCKSPECIALS_SPECIALS_NBR' => Tools::getValue('BLOCKSPECIALS_SPECIALS_NBR', Configuration::get('BLOCKSPECIALS_SPECIALS_NBR'))
 		);
 	}
+
+    protected function getCacheId($name = null)
+    {
+        if ($name === null)
+            $name = 'blockspecials';
+        return parent::getCacheId($name.'|'.date('Ymd'));
+    }
+
+    public function _clearCache($template, $cache_id = null, $compile_id = null)
+    {
+        parent::_clearCache('blockspecials.tpl');
+        parent::_clearCache('blockspecials-home.tpl', 'blockspecials-home');
+        parent::_clearCache('tab.tpl', 'blockspecials-tab');
+    }
 }
