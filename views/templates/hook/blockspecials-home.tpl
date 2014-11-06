@@ -22,4 +22,10 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-{include file="$tpl_dir./product-list.tpl" products=$specials class='blockspecials tab-pane active' id='blockspecials'}
+{if isset($specials) && $specials}
+	{include file="$tpl_dir./product-list.tpl" products=$specials class='blockspecials tab-pane active' id='blockspecials'}
+{else}
+<ul id="blockspecials" class="blockspecials tab-pane">
+	<li class="alert alert-info">{l s='No specials products at this time.' mod='blockspecials'}</li>
+</ul>
+{/if}
