@@ -22,4 +22,4 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-<li><a class="blockspecials">{l s='Specials' mod='blockspecials'}</a></li>
+<li><a  data-toggle="tab" href="#blockspecials" class="blockspecials">{l s='Specials' mod='blockspecials'}</a></li>
