@@ -38,7 +38,7 @@ class BlockSpecials extends Module
 	{
 		$this->name = 'blockspecials';
 		$this->tab = 'pricing_promotion';
-		$this->version = '1.1.3';
+		$this->version = '1.1.4';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
