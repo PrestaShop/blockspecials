@@ -260,7 +260,7 @@ class BlockSpecials extends Module
 	public function _clearCache($template, $cache_id = null, $compile_id = null)
 	{
 		parent::_clearCache('blockspecials.tpl');
-		parent::_clearCache('blockspecials-home.tpl', 'blockspecials-home');
-		parent::_clearCache('tab.tpl', 'blockspecials-tab');
+		parent::_clearCache('blockspecials-home.tpl', $this->getCacheId('blockspecials-home'));
+		parent::_clearCache('tab.tpl', $this->getCacheId('blockspecials-tab'));
 	}
 }
