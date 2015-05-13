@@ -29,10 +29,10 @@ if (!defined('_PS_VERSION_'))
 
 class BlockSpecials extends Module
 {
-	private $_html = '';
-	private $_postErrors = array();
+	protected $_html = '';
+	protected $_postErrors = array();
 
-	private static $cache_specials;
+	protected static $cache_specials;
 
 	public function __construct()
 	{
