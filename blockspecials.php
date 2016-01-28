@@ -107,7 +107,7 @@ class BlockSpecials extends Module
 			$this->smarty->assign(array(
 				'special' => $special,
 				'priceWithoutReduction_tax_excl' => Tools::ps_round($special['price_without_reduction'], 2),
-				'mediumSize' => Image::getSize(ImageType::getFormatedName('medium')),
+				'mediumSize' => Image::getSize(ImageType::getFormattedName('medium')),
 			));
 		}
 
@@ -164,7 +164,7 @@ class BlockSpecials extends Module
 		{
 			$this->smarty->assign(array(
 				'specials' => BlockSpecials::$cache_specials,
-				'homeSize' => Image::getSize(ImageType::getFormatedName('home'))
+				'homeSize' => Image::getSize(ImageType::getFormattedName('home'))
 			));
 		}
 
