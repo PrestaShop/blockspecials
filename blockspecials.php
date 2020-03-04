@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2016 PrestaShop
+* 2007-2019 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2016 PrestaShop SA
+*  @copyright  2007-2019 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -38,7 +38,7 @@ class BlockSpecials extends Module
 	{
 		$this->name = 'blockspecials';
 		$this->tab = 'pricing_promotion';
-		$this->version = '1.3.1';
+		$this->version = '1.3.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -162,6 +162,8 @@ class BlockSpecials extends Module
 
 		if (!$this->isCached('blockspecials-home.tpl', $this->getCacheId('blockspecials-home')))
 		{
+			BlockSpecials::$cache_specials = Product::getPricesDrop((int)$params['cookie']->id_lang, 0, Configuration::get('BLOCKSPECIALS_SPECIALS_NBR'));
+
 			$this->smarty->assign(array(
 				'specials' => BlockSpecials::$cache_specials,
 				'homeSize' => Image::getSize(ImageType::getFormatedName('home'))
